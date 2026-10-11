@@ -52,7 +52,7 @@ jobs:
           format: 'table'
 
   docker-publish:
-    needs: [  build, scan-fs, scan-iac]
+    needs: [  build, scan]
     permissions:
       contents: read
       packages: write
