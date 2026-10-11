@@ -92,10 +92,10 @@ jobs:
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Trivy image scan
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
-          image-ref: ${{ github.event.repository.name }}:${{ github.ref_name }}
+          image-ref: ${{ secrets.DOCKER_ACCOUNT_NAME}}/${{ github.event.repository.name }}:${{ github.base_ref }}
           scanners: vuln,secret
           vuln-type: os,library
           severity: HIGH,CRITICAL
