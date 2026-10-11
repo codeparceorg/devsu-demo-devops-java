@@ -1,0 +1,20 @@
+name: On-Premise deploy
+
+on:
+  #push:
+    #branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 
+    #- kubernetes #Runner on-premise
+    - ubuntu-latest #Runner cloud (default)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Build in maven
+        uses: codeparce/ci-workflows/.github/actions/build/maven@v1
+
