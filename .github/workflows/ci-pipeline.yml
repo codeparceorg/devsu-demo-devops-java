@@ -94,7 +94,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.36.0
         with:
           scan-type: image
-          image-ref: ${{ inputs.docker-account-name }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          image-ref: ${{ github.event.repository.name }}:${{ github.ref_name }}
           scanners: vuln,secret
           vuln-type: os,library
           severity: HIGH,CRITICAL
