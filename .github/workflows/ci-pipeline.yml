@@ -1,12 +1,13 @@
-name: On-Premise deploy
+name: CI Actions Pipeline
 
 on:
-  #push:
-    #branches: [ "main" ]
+  pull_request:
+    branches: [dev,test]
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build and Test
     runs-on: 
     #- kubernetes #Runner on-premise
     - ubuntu-latest #Runner cloud (default)
@@ -18,3 +19,85 @@ jobs:
       - name: Build in maven
         uses: codeparce/ci-workflows/.github/actions/build/maven@v1
 
+  scan-fs:
+    name: Scan Filesystem
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          format: table
+
+  scan-iac:
+    name: Scan IaC and Configurations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trivy configuration scan
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: table
+
+  docker-publish:
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    runs-on: 
+    #- kubernetes #Runner on-premise
+    - ubuntu-latest #Runner cloud (default)
+    steps:
+      - uses: actions/checkout@v4
+          
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: service-build
+          path: target
+
+      - name: Publish to Docker Hub
+        uses: codeparce/ci-workflows/.github/actions/docker/registry@v1
+        with:
+          docker-account-name: ${{ secrets.DOCKER_ACCOUNT_NAME}}
+          container-access-token: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+
+  scan-image:
+    name: Scan Docker Image
+    needs: docker-publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_ACCOUNT_NAME}}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ inputs.docker-account-name }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          scanners: vuln,secret
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          format: table
