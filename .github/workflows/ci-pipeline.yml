@@ -71,8 +71,8 @@ jobs:
       - name: Publish to Docker Hub
         uses: codeparce/ci-workflows/.github/actions/docker@v1
         with:
-          docker-account-name: ${{ secrets.DOCKER_ACCOUNT_NAME}}
-          container-access-token: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          account-name: ${{ secrets.DOCKER_ACCOUNT_NAME}}
+          access-token: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
 
   scan-image:
