@@ -19,37 +19,37 @@ jobs:
       - name: Build in maven
         uses: codeparce/ci-workflows/.github/actions/build/maven@v1
 
-  scan-fs:
-    name: Scan Filesystem
+  scan:
+    name: Scan (${{ matrix.scanner.name }})
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    strategy:
+      fail-fast: false
+      matrix:
+        scanner:
+          - name: Filesystem
+            scan-type: fs
+            scanners: "vuln,secret"
+            exit-code: "0" # Cambia a "1" si quieres que falle en el futuro
 
-      - name: Trivy filesystem scan
+          - name: IaC & Configs
+            scan-type: config
+            scanners: ""
+            exit-code: "1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          scan-type: fs
-          scan-ref: .
-          scanners: vuln,secret
-          severity: HIGH,CRITICAL
+          scan-type: ${{ matrix.scanner.scan-type }}
+          scan-ref: '.'
+          scanners: ${{ matrix.scanner.scanners }}
+          severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
-          exit-code: '0' # bypass por el meomento
-          format: table
-
-  scan-iac:
-    name: Scan IaC and Configurations
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Trivy configuration scan
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: config
-          scan-ref: .
-          severity: HIGH,CRITICAL
-          exit-code: '1'
-          format: table
+          exit-code: ${{ matrix.scanner.exit-code }}
+          format: 'table'
 
   docker-publish:
     needs: [  build, scan-fs, scan-iac]
