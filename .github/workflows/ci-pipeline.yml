@@ -33,7 +33,7 @@ jobs:
             scan-type: fs
             scanners: "vuln,secret"
             output: trivy-fs.sarif
-            exit-code: "0" # Cambia a "1" si quieres que falle en el futuro
+            exit-code: "0" # bypass
 
           - name: IaC & Configs
             scan-type: config
@@ -53,16 +53,28 @@ jobs:
           scanners: ${{ matrix.scanner.scanners }}
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
-          format: sarif
-          output: ${{ matrix.scanner.output }}
+          format: table
+          output: trivy-results.txt
           exit-code: ${{ matrix.scanner.exit-code }}
 
-      - name: Upload SARIF to GitHub
+      - name: Add results to GitHub Summary
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: ${{ matrix.scanner.output }}
-          category: ${{ matrix.scanner.name }}
+        shell: bash
+        env:
+          SCAN_NAME: ${{ matrix.scanner.name }}
+        run: |
+          {
+            echo "## Trivy Scan: ${SCAN_NAME}"
+            echo
+            if [[ -f trivy-results.txt ]]; then
+              echo '```text'
+              cat trivy-results.txt
+              echo
+              echo '```'
+            else
+              echo "No report file was generated."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
   docker-publish:
     needs: [  build, scan]
