@@ -1,5 +1,6 @@
 HELP.md
 CHECKLIST_ES.md
+values.yaml
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

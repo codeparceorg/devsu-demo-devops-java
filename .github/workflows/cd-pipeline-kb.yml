@@ -107,7 +107,7 @@ jobs:
       - name: Show deployment information
         run: |
           echo "Deployment completed successfully."
-          echo "DNS Externo: http://microservicio.${NS}.lab/${MS_PATH}"
+          echo "DNS Externo: http://microservicio.${NS}.lab${MS_PATH}"
           echo "DNS interno: ${SVC_NAME}.${NS}.svc.cluster.local/${MS_PATH}"
 
 
