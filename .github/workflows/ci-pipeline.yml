@@ -59,7 +59,7 @@ jobs:
 
       - name: Summary of Trivy Scan Results
         if: always()
-        uses: codeparce/ci-workflows/.github/actions/build/maven@v1
+        uses: codeparce/ci-workflows/.github/actions/github/summary@v1
         with:
           scaner-name: ${{ matrix.scanner.name }}
           report-file: trivy-results.txt
@@ -118,7 +118,7 @@ jobs:
 
       - name: Summary of Trivy Scan Results
         if: always()
-        uses: codeparce/ci-workflows/.github/actions/github/sumary@v1
+        uses: codeparce/ci-workflows/.github/actions/github/summary@v1
         with:
           scaner-name: Image Scaner
           report-file: trivy-results.txt
