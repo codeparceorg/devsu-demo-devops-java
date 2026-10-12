@@ -8,7 +8,7 @@ USER appuser
 
 WORKDIR /app
 
-RUN mkdir ./db
+RUN mkdir -p /app/db
 
 COPY ./target/*.jar app.jar
 

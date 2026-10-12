@@ -22,6 +22,7 @@ jobs:
         uses: codeparce/ci-workflows/.github/actions/build/maven@v1
 
   docker-publish:
+    name: Dokcer Publish
     needs: [ build]
     permissions:
       contents: read
@@ -81,6 +82,7 @@ jobs:
 
   deploy:
     runs-on: kubernetes #Runner on-premise
+    name: Deploy in Kubernetes
     needs: docker-publish
     env:
       GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
