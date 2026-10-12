@@ -19,7 +19,7 @@ jobs:
       - name: Build in maven
         uses: codeparce/ci-workflows/.github/actions/build/maven@v1
 
-  scan:
+  scan-repository:
     name: Scan (${{ matrix.scanner.name }})
     runs-on: ubuntu-latest
     permissions:
@@ -57,27 +57,16 @@ jobs:
           output: trivy-results.txt
           exit-code: ${{ matrix.scanner.exit-code }}
 
-      - name: Add results to GitHub Summary
+      - name: Summary of Trivy Scan Results
         if: always()
-        shell: bash
-        env:
-          SCAN_NAME: ${{ matrix.scanner.name }}
-        run: |
-          {
-            echo "## Trivy Scan: ${SCAN_NAME}"
-            echo
-            if [[ -f trivy-results.txt ]]; then
-              echo '```text'
-              cat trivy-results.txt
-              echo
-              echo '```'
-            else
-              echo "No report file was generated."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: codeparce/ci-workflows/.github/actions/build/maven@v1
+        with:
+          scaner-name: ${{ matrix.scanner.name }}
+          report-file: trivy-results.txt
+
 
   docker-publish:
-    needs: [  build, scan]
+    needs: [  build, scan-repository]
     permissions:
       contents: read
       packages: write
@@ -107,8 +96,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: read
-
     steps:
       - name: Login to Registry
         uses: docker/login-action@v3
@@ -125,5 +112,13 @@ jobs:
           vuln-type: os,library
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: '1'
           format: table
+          output: trivy-results.txt
+          exit-code: '1'
+
+      - name: Summary of Trivy Scan Results
+        if: always()
+        uses: codeparce/ci-workflows/.github/actions/github/sumary@v1
+        with:
+          scaner-name: Image Scaner
+          report-file: trivy-results.txt
