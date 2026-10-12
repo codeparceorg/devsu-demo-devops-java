@@ -1,0 +1,38 @@
+name: CD Actions Pipeline (kuberenets on-premise)
+
+on:
+  push:
+    branches: [ "test" ]
+    
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: kubernetes #Runner on-premise
+    env:
+      GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+      GITHUB_REF_NAME: ${{ github.ref_name }}
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_SHA: ${{ github.sha }}
+      ORG: codeparce
+      SVC_NAME: ${{ github.event.repository.name }}-svc
+      IMAGE_TAG: ${{ github.sha }}
+      NS: sis-${{ github.ref_name  }}-ms
+      MS_PATH: /api/users
+
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Deploy to Kubernetes
+        run: |
+          cd kubernetes
+          envsubst < values.template > values.yaml
+          helm upgrade --install ${GITHUB_REPOSITORY_NAME} . --namespace ${NS} --create-namespace
+
+      - name: Show deployment information
+        run: |
+          echo "Deployment completed successfully."
+          echo "DNS Externo: http://microservicio.${NS}.lab/${MS_PATH}"
+          echo "DNS interno: ${SVC_NAME}.${NS}.svc.cluster.local/${MS_PATH}"
+
+
