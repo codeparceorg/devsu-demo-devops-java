@@ -1,14 +1,12 @@
 FROM eclipse-temurin:17-jre-alpine AS runtime
 
-RUN addgroup -S appgroup 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-RUN adduser -S appuser -G appgroup
+RUN mkdir -p /app/db && chown -R appuser:appgroup /app
 
 USER appuser
 
 WORKDIR /app
-
-RUN mkdir ./db
 
 COPY ./target/*.jar app.jar
 
