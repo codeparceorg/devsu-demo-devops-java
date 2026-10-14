@@ -1,0 +1,70 @@
+name: Pipeline env & conection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mostrar variables
+        run: |
+          echo "Branch: $GITHUB_REF"
+          echo "Branch corta: $GITHUB_REF_NAME"
+          echo "Commit: $GITHUB_SHA"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Repo: $GITHUB_REPOSITORY"
+          echo "Run ID: $GITHUB_RUN_ID"
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ github }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Test
+        run: |
+          echo "Runner funcionando"
+          hostname
+          whoami
+
+      - name: Mostrar contexto del workflow
+        run: |
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "Repository: $GITHUB_REPOSITORY_NAME"
+          echo "Ref: $GITHUB_REF"
+          echo "Base branch: $TARGET_BRANCH"
+
+      - name: Inspeccionar claims OIDC
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RESPONSE=$(curl -sS \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com")
+
+          export OIDC_TOKEN
+          OIDC_TOKEN=$(printf '%s' "$RESPONSE" | jq -er '.value')
+
+          node -e '
+            const token = process.env.OIDC_TOKEN;
+            const claims = JSON.parse(
+              Buffer.from(token.split(".")[1], "base64url").toString()
+            );
+            console.log(JSON.stringify({
+              aud: claims.aud,
+              sub: claims.sub,
+              repository: claims.repository,
+              repository_id: claims.repository_id,
+              repository_owner_id: claims.repository_owner_id,
+              ref: claims.ref,
+              event_name: claims.event_name
+            }, null, 2));
+          '
+
+          unset OIDC_TOKEN RESPONSE
