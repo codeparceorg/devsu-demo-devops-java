@@ -40,11 +40,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Init && Templeate config
+        working-directory: IaC
         run: | 
          envsubst < provider.tf.template> provider.tf
          terraform init 
 
       - name: Deploy en aws
+        working-directory: IaC
         run: |
-          terraform apply -auto-approve  > salida.log 2> errores.log
+          terraform apply -auto-approve 
           echo "✅ Deploy completado"

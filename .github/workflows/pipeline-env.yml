@@ -3,6 +3,11 @@ name: Pipeline env & conection
 on:
   workflow_dispatch:
 
+
+permissions:
+  contents: read
+  id-token: write
+  
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,11 +24,6 @@ jobs:
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ github }}
         run: echo "$GITHUB_CONTEXT"
 
       - name: Test
