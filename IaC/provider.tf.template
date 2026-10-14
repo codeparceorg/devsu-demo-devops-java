@@ -1,0 +1,18 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+  backend "s3" {
+    use_lockfile = true
+    bucket       = "codeparce"
+    key          = "devsu/devsu-demo-devops-java/${TARGET_BRANCH}_terraform.tfstate"
+    region       = "us-east-1"
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}

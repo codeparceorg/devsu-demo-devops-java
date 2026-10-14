@@ -1,14 +1,11 @@
 name: CD Actions Pipeline (kuberenets on-premise)
 
 on:
-  push:
-    branches: [ "test" ]
-    
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build and Test
+    name: Build Applications
     runs-on: 
     - kubernetes #Runner cloud (default)
     steps:
