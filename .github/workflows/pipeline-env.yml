@@ -3,6 +3,11 @@ name: Pipeline env & conection
 on:
   workflow_dispatch:
 
+
+permissions:
+  contents: read
+  id-token: write
+  
 jobs:
   test:
     runs-on: ubuntu-latest
