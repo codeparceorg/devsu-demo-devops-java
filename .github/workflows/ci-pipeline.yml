@@ -1,12 +1,13 @@
-name: On-Premise deploy
+name: CI Actions Pipeline
 
 on:
-  #push:
-    #branches: [ "main" ]
+  pull_request:
+    branches: [dev,test]
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build and Test
     runs-on: 
     #- kubernetes #Runner on-premise
     - ubuntu-latest #Runner cloud (default)
@@ -17,4 +18,50 @@ jobs:
 
       - name: Build in maven
         uses: codeparce/ci-workflows/.github/actions/build/maven@v1
+
+  scan-repository:
+    name: Scan (${{ matrix.scanner.name }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        scanner:
+          - name: Filesystem
+            scan-type: fs
+            scanners: "vuln,secret"
+            output: trivy-fs.sarif
+            exit-code: "0" # bypass
+
+          - name: IaC & Configs
+            scan-type: config
+            scanners: ""
+            output: trivy-conf.sarif
+            exit-code: "0"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: ${{ matrix.scanner.scan-type }}
+          scan-ref: '.'
+          scanners: ${{ matrix.scanner.scanners }}
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+          format: table
+          output: trivy-results.txt
+          exit-code: ${{ matrix.scanner.exit-code }}
+
+      - name: Summary of Trivy Scan Results
+        if: always()
+        uses: codeparce/ci-workflows/.github/actions/github/summary@v1
+        with:
+          scaner-name: ${{ matrix.scanner.name }}
+          report-file: trivy-results.txt
+
 

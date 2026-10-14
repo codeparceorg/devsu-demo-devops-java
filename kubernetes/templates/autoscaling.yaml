@@ -1,0 +1,38 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.name }}-hpa
+  namespace:  {{ .Values.namespace }}
+spec:
+  # ¿A que va a escalar?
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.name }}-deployment
+
+  #Minimo y maximo de replicas
+  minReplicas: 2
+  maxReplicas: 4
+
+  # parametros para subir o bajar el autoscalado
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 10
+    scaleUp:
+      stabilizationWindowSeconds: 10
+    
+  # metricas que va a evaluar  para escalar
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+
+
+## para usar este manifest debes de tener instalado en el cluster, Metrics server
+## kubectl top pods
+
+## test dentro del pod para generar prueba de stress
+## while true; do curl -s -o /dev/null http://localhost; done
