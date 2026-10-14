@@ -43,6 +43,9 @@ jobs:
         working-directory: IaC
         run: | 
          envsubst < provider.tf.template> provider.tf
+         echo $TF_VAR_path_pattern
+         echo $TF_VAR_health_check_path
+         cat provider.tf
          terraform init 
 
       - name: Deploy en aws
