@@ -40,6 +40,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Init && Templeate config
+        working-directory: IaC
         run: | 
          envsubst < provider.tf.template> provider.tf
          terraform init 
