@@ -1,4 +1,4 @@
-name: CD Actions Pipeline (kuberenets on-premise)
+name: CD Build Pipeline
 
 on:
   push:
