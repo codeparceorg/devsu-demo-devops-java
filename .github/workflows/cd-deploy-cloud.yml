@@ -2,7 +2,11 @@ name: CD Actions Pipeline (deploy aws)
 
 on:
   workflow_dispatch:
-
+    branches:
+      - dev
+      - test
+      - main
+      
 permissions:
   contents: read
   id-token: write
@@ -43,10 +47,15 @@ jobs:
         working-directory: IaC
         run: | 
          envsubst < provider.tf.template> provider.tf
-         terraform init 
+         terraform init > terraform.log 2> error.log
 
       - name: Deploy en aws
         working-directory: IaC
         run: |
-          terraform apply -auto-approve 
-          echo "✅ Deploy completado"
+          terraform apply -input=false > terraform.log 2> error.log
+          echo "✅ Deploy completado" >> error.log
+
+      - name: Check Execution
+        if: always()
+        working-directory: IaC
+        run: cat error.log

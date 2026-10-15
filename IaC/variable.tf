@@ -19,11 +19,6 @@ variable "port" {
   type        = number
 }
 
-variable "vpc_id" {
-  description = "VPC ID where the infrastructure will be deployed."
-  type        = string
-}
-
 variable "path_pattern" {
   description = "Path pattern for the listener rule"
   type        = list(string)
