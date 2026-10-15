@@ -2,7 +2,11 @@ name: CD Actions Pipeline (kuberenets on-premise)
 
 on:
   workflow_dispatch:
-
+    branches:
+      - dev
+      - test
+      - main
+      
 jobs:
   build:
     name: Build Applications

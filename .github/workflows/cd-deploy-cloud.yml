@@ -2,7 +2,11 @@ name: CD Actions Pipeline (deploy aws)
 
 on:
   workflow_dispatch:
-
+    branches:
+      - dev
+      - test
+      - main
+      
 permissions:
   contents: read
   id-token: write
