@@ -1,6 +1,4 @@
 HELP.md
-INTI.MD
-CHECKLIST_ES.md
 values.yaml
 target/
 !.mvn/wrapper/maven-wrapper.jar
