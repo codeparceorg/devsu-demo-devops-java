@@ -1,4 +1,4 @@
-name: CD Actions Pipeline (deploy aws)
+name: CD Deploy in AWS
 
 on:
   workflow_dispatch:
