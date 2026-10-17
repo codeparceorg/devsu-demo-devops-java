@@ -1,8 +1,8 @@
-name: CI Actions Pipeline
+name: CI Validation
 
 on:
   pull_request:
-    branches: [dev,test,main]
+    branches: [test,main]
   workflow_dispatch:
 
 jobs:
@@ -33,13 +33,13 @@ jobs:
             scan-type: fs
             scanners: "vuln,secret"
             output: trivy-fs.sarif
-            exit-code: "0" # bypass
+            exit-code: "1" # bypass
 
           - name: IaC & Configs
             scan-type: config
             scanners: ""
             output: trivy-conf.sarif
-            exit-code: "0"
+            exit-code: "1"
 
     steps:
       - name: Checkout repository

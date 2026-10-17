@@ -2,7 +2,7 @@ name: CD Build Pipeline
 
 on:
   push:
-    branches: [dev,test,main]
+    branches: [test,main]
       
 jobs:
   build:
@@ -40,7 +40,7 @@ jobs:
       - name: Publish to Docker Hub
         uses: codeparce/ci-workflows/.github/actions/docker@v1
         with:
-          target-branch: ${{ github.sha }}
+          target-branch: ${{github.ref_name}}-${{ github.sha }}
           account-name: ${{ secrets.DOCKER_ACCOUNT_NAME}}
           access-token: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
@@ -69,7 +69,7 @@ jobs:
           ignore-unfixed: true
           format: table
           output: trivy-results.txt
-          exit-code: '0' # bypass
+          exit-code: '1' # bypass
 
       - name: Summary of Trivy Scan Results
         if: always()
