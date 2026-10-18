@@ -18,7 +18,7 @@ jobs:
       GITHUB_SHA: ${{ github.sha }}
       ORG: codeparce
       SVC_NAME: ${{ github.event.repository.name }}-svc
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: ${{github.ref_name}}-${{ github.sha }}
       NS: sis-${{ github.ref_name  }}-ms
       MS_PATH: /api/users
 

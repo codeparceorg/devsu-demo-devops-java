@@ -1,0 +1,45 @@
+name: Create Release Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Número de versión del release (ej: 1.2.0)'
+        required: true
+        type: string
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }} 
+
+      - name: Configure Git Identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and Push Release Branch
+        run: |
+          VERSION="${{ inputs.version }}"
+          BRANCH_NAME="release/v${VERSION}"
+          
+          echo "Creando rama $BRANCH_NAME desde test..."
+          
+          # Cambiar a test y actualizar
+          git checkout test
+          git pull origin test
+          
+          # Crear la nueva rama release
+          git checkout -b "$BRANCH_NAME"
+          
+          # Opcional: Aquí podrías actualizar archivos de configuración de versión automáticamente (ej. package.json)
+          
+          # Subir la nueva rama al repositorio remoto
+          git push origin "$BRANCH_NAME"
+          
+          echo "¡Rama $BRANCH_NAME creada y publicada con éxito!"
